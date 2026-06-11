@@ -15,7 +15,7 @@ abstract class Repository
 
     protected function connect(): void
     {
-        $driver = $_ENV['DB_DRIVER'] ?? 'sqlite';
+        $driver = $_ENV['DB_DRIVER'] ?? 'mysql';
         $host = $_ENV['DB_HOST'] ?? 'localhost';
         $dbname = $_ENV['DB_NAME'] ?? 'helix';
         $user = $_ENV['DB_USER'] ?? 'root';
@@ -39,7 +39,7 @@ abstract class Repository
 
     protected function quoteIdentifier(string $name): string
     {
-        $driver = $_ENV['DB_DRIVER'] ?? 'sqlite';
+        $driver = $_ENV['DB_DRIVER'] ?? 'mysql';
         if ($driver === 'mysql') {
             return "`{$name}`";
         }

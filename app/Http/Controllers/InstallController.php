@@ -63,7 +63,7 @@ class InstallController
     private function renderPage(bool $envExists, array $defaults): string
     {
         $appUrl = $defaults['APP_URL'] ?? 'http://localhost:8080';
-        $dbDriver = $defaults['DB_DRIVER'] ?? 'sqlite';
+        $dbDriver = $defaults['DB_DRIVER'] ?? 'mysql';
         $dbPath = $defaults['DB_PATH'] ?? 'storage/database.sqlite';
 
         return <<<HTML
@@ -285,9 +285,9 @@ class InstallController
                 <div class="form-group">
                     <label>Database Driver</label>
                     <select name="DB_DRIVER" id="db-driver" onchange="toggleDbConfig()">
-                        <option value="sqlite" selected>SQLite</option>
-                        <option value="mysql">MySQL</option>
-                        <option value="pgsql">PostgreSQL</option>
+                        <option value="sqlite"<?= $dbDriver === 'sqlite' ? ' selected' : '' ?>>SQLite</option>
+                        <option value="mysql"<?= $dbDriver === 'mysql' ? ' selected' : '' ?>>MySQL</option>
+                        <option value="pgsql"<?= $dbDriver === 'pgsql' ? ' selected' : '' ?>>PostgreSQL</option>
                     </select>
                 </div>
                 <div id="sqlite-config">
@@ -362,6 +362,8 @@ class InstallController
 
         // Run checks on page load
         document.addEventListener('DOMContentLoaded', async () => {
+            toggleDbConfig();
+
             const resultsDiv = document.getElementById('check-results');
             resultsDiv.innerHTML = '<div style="text-align:center;padding:1rem;"><div class="spinner"></div> Running checks...</div>';
 

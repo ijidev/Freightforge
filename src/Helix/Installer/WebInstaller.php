@@ -28,7 +28,7 @@ class WebInstaller
         $adminEmail = $config['ADMIN_EMAIL'] ?? '';
         $adminPassword = $config['ADMIN_PASSWORD'] ?? '';
 
-        $dbDriver = $config['DB_DRIVER'] ?? 'sqlite';
+        $dbDriver = $config['DB_DRIVER'] ?? 'mysql';
         $envVars = [
             'APP_ENV' => 'development',
             'APP_DEBUG' => 'true',

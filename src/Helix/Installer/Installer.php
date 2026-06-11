@@ -134,7 +134,7 @@ class Installer
         }
 
         $defaults = parse_ini_file($envExample) ?: [];
-        $dbDriver = $this->prompt('Database driver', $defaults['DB_DRIVER'] ?? 'sqlite', ['sqlite', 'mysql', 'pgsql']);
+        $dbDriver = $this->prompt('Database driver', $defaults['DB_DRIVER'] ?? 'mysql', ['sqlite', 'mysql', 'pgsql']);
 
         $env = $defaults;
         $env['DB_DRIVER'] = $dbDriver;
@@ -164,7 +164,7 @@ class Installer
 
     private function setupDatabase(): void
     {
-        $driver = $this->config['DB_DRIVER'] ?? 'sqlite';
+        $driver = $this->config['DB_DRIVER'] ?? 'mysql';
 
         if ($driver === 'sqlite') {
             $path = $this->config['DB_PATH'] ?? 'storage/database.sqlite';
@@ -208,7 +208,7 @@ class Installer
     public function setupSchema(): bool
     {
         try {
-            $driver = $this->config['DB_DRIVER'] ?? 'sqlite';
+            $driver = $this->config['DB_DRIVER'] ?? 'mysql';
             $dbUser = $this->config['DB_USER'] ?? '';
             $dbPass = $this->config['DB_PASS'] ?? '';
 
@@ -413,7 +413,7 @@ class Installer
         }
 
         try {
-            $driver = $this->config['DB_DRIVER'] ?? 'sqlite';
+            $driver = $this->config['DB_DRIVER'] ?? 'mysql';
             $dbUser = $this->config['DB_USER'] ?? '';
             $dbPass = $this->config['DB_PASS'] ?? '';
 
