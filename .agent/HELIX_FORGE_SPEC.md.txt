@@ -1,0 +1,270 @@
+# Helix-Forge Framework Spec v1.0
+## Goal: AI-Native, Fast, Explicit PHP 8.3+ Framework
+
+### 1. Core Philosophy
+
+Helix-Forge is not "another MVC". It's built for humans + AI agents to build fast APIs and web apps without magic or bloat.
+
+**Principles:**
+1. **Explicit over Magic**: No facades, no `__call`, no global helpers unless imported. Everything traceable by static analysis and AI.
+2. **Attribute-Driven**: Routing, validation, DI, permissions declared via PHP 8.3 `#[Attributes]` directly on classes/methods.
+3. **Schema-First**: The code itself is the source of truth. No separate route files, config arrays scattered everywhere.
+4. **Zero Bloat Core**: Core is <2MB. Routing, DI, Request/Response, Template. Everything else is a Composer package.
+5. **AI-Native**: Ship with an agent protocol so AI can safely generate, modify, and test code without breaking the app.
+
+**Target**: PHP 8.3+, Fibers for async, OPcache-friendly, strict BC, 3-year LTS.
+
+---
+
+### 2. Project Structure
+
+/app
+  /Http
+    /Controllers
+      http://UserController.php
+  /Domain
+    /User
+      http://User.php
+      http://UserRepository.php
+/config
+  http://app.php
+  http://database.php
+/routes
+  http://api.php // Only for grouping, actual routes use attributes
+/storage
+/vendor
+/public
+  http://index.php
+.helix/agent.yml // AI rules and context
+
+---
+
+### 3. Attribute-Driven Routing & Controllers
+
+**Problem**: Laravel routes are separate from controllers. AI loses context.
+**Solution**: Declare routes via attributes on methods.
+
+**Example:**
+
+```php
+<?php
+namespace App\Http\Controllers;
+
+use Helix\Routing\Attributes\Route;
+use Helix\Validation\Attributes\Validate;
+use Helix\Http\Attributes\Param;
+
+class UserController
+{
+    #[Route('/api/users/{id}', method: 'GET')]
+    #[Validate(['id' => 'required|int|min:1'])]
+    public function show(
+        #[Param] int $id,
+        UserRepository $users
+    ): JsonResponse
+    {
+        $user = $users->find($id);
+        return response()->json($user);
+    }
+
+    #[Route('/api/users', method: 'POST')]
+    #[Validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users'
+    ])]
+    public function store(
+        ValidatedRequest $request,
+        UserRepository $users
+    ): JsonResponse
+    {
+        $user = $users->create($request->validated());
+        return response()->json($user, 201);
+    }
+}
+*Route Compilation*: On `helix cache:routes`, Helix-Forge compiles attributes to plain PHP arrays. No reflection in prod. Result: 0.2ms route resolution.
+
+---
+
+### 4. Explicit Dependency Injection
+
+*Problem*: Magic facades and service locators hide dependencies.
+*Solution*: Constructor injection only. No static facades.
+
+*Example:*
+<?php
+namespace App\Domain\User;
+
+class UserService
+{
+    public function __construct(
+        private UserRepository $users,
+        private Mailer $mailer,
+        private EventDispatcher $events
+    ) {}
+
+    public function register(array $data): User
+    {
+        $user = $this->users->create($data);
+        $this->mailer->sendWelcome($user);
+        $this->events->dispatch(new UserRegistered($user));
+        return $user;
+    }
+}
+*Container*: PSR-11 compatible. Auto-wires by type-hint. No config needed for 90% of cases.
+*No Facades*: `Auth::user()` becomes `$auth->user()` via injected `AuthService`.
+
+---
+
+### 5. Schema-First Database & Validation
+
+*Problem*: Migrations, models, validation rules live in 4 places.
+*Solution*: Define schema once using attributes, generate migrations, models, validation from it.
+
+*Example:*
+<?php
+namespace App\Domain\User;
+
+use Helix\Database\Attributes\Entity;
+use Helix\Database\Attributes\Column;
+
+#[Entity(table: 'users')]
+class User
+{
+    #[Column(type: 'id')]
+    public int $id;
+
+    #[Column(type: 'string', length: 255)]
+    #[Validate('required|string|max:255')]
+    public string $name;
+
+    #[Column(type: 'string', unique: true)]
+    #[Validate('required|email|unique:users')]
+    public string $email;
+
+    #[Column(type: 'datetime')]
+    public \DateTime $created_at;
+}
+*CLI*: `helix make:migration` reads attributes and generates SQL.
+*ORM*: Repository pattern only. No Active Record magic. Repositories are explicit.
+
+---
+
+### 6. AI Agent Protocol
+
+*Goal*: Let AI safely interact with the codebase.
+
+*File*: `.helix/agent.yml`
+project:
+  name: "My API"
+  php_version: "8.3"
+  db: "pgsql"
+  coding_style: "psr-12"
+
+rules:
+    - "No facades. Use DI only."
+    - "All routes must use #[Route] attribute."
+    - "Repositories only. No direct DB queries in controllers."
+
+packages:
+  allowed: ["helix/*", "symfony/*"]
+  forbidden: ["guzzle/guzzle"] # deprecated
+
+endpoints:
+  generate_model: "helix make:model {name}"
+  run_tests: "helix test"
+  explain_route: "helix route:explain {uri}"
+*CLI Commands for AI:*
+- `helix agent:generate model User name:string email:string`
+- `helix agent:explain controller UserController`
+- `helix agent:fix test UserTest.php`
+- `helix agent:upgrade` runs codemods for BC breaks.
+
+AI calls these via JSON-RPC/MCP. No file guessing.
+
+---
+
+### 7. Core Packages Included
+
+Core ships only with essentials. Everything else is optional.
+Package | Purpose | Size
+`helix/routing` | Attribute routing, compiled routes | 15kb
+`helix/di` | PSR-11 container, auto-wiring | 8kb
+`helix/http` | Request/Response, middleware | 12kb
+`helix/database` | Query builder, repository base | 40kb
+`helix/validation` | Attribute validation | 10kb
+`helix/fibers` | Async queue, HTTP client via Fibers | 20kb
+*Total Core*: ∼105kb. Full app with ORM, auth, queue <2MB.
+
+---
+
+### 8. Async & Jobs with Fibers
+
+No Swoole/FrankenPHP required. Use PHP 8.3 Fibers.
+
+*Example:*
+#[Queue('emails')]
+class SendWelcomeEmailJob
+{
+    public function __construct(private User $user) {}
+
+    public function handle(Mailer $mailer): void
+    {
+        $mailer->send($this->user->email, 'welcome');
+    }
+}
+
+// Dispatch
+Queue::dispatch(new SendWelcomeEmailJob($user));
+
+// Runs on SQLite/Postgres by default. No Redis needed.
+---
+
+### 9. Testing & DX
+
+*Zero-Config Testing*: PestPHP works out of the box.
+test('user can be created', function () {
+    $response = post('/api/users', ['name' => 'John', 'email' => 'john@test.com']);
+    $response->assertStatus(201);
+    expect($response->json('email'))->toBe('john@test.com');
+});
+*Hot Reload*: `helix serve` uses Fibers to watch files and reload without restarting PHP-FPM.
+
+---
+
+### 10. Upgrade Strategy - Strict BC
+
+1. *Semver*: Only major versions break BC.
+2. *Codemods*: `helix upgrade 2.0` auto-fixes 95% of BC breaks.
+3. *LTS*: Every even minor version is LTS for 3 years. Security patches only.
+
+---
+
+### 11. Why This Works for AI
+Feature | Why AI Likes It
+Attributes | Self-documenting. AI sees route, validation, type in one place.
+Explicit DI | No hidden dependencies. Constructor shows everything.
+Compiled Routes | No reflection. AI generates static PHP easily.
+Agent Protocol | AI doesn't guess file paths. It calls official commands.
+No Magic | PHPStan and AI can trace 100% of code paths.
+---
+
+### 12. Getting Started Commands
+composer create-project helix/forge my-api
+cd my-api
+helix serve
+
+helix make:controller UserController
+helix make:model User name:string email:string
+helix make:migration
+helix test
+---
+
+*Summary*:
+Helix-Forge = Fast routes, explicit DI, attribute-driven schema, AI agent protocol, zero bloat.
+Built so AI generates code that passes review and deploys without breaking prod.
+
+---
+
+This file gives the AI the full mental model: structure, examples, and why each decision was made.
+
+Want me to also generate a `agent.yml` template and a minimal `UserController.php` file you can drop into the repo so the AI has working code to reference?

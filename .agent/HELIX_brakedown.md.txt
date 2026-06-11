@@ -1,0 +1,128 @@
+Got you. Let’s break each one down with simple examples so it’s clear what makes Helix-Forge different.
+
+### 1. Schema-first, attribute-driven
+
+*What it means*:  
+Instead of putting config in separate files or magic methods, you describe what a route/model/validation rule _is_ right above the code it affects. You use PHP 8+ `#[Attributes]` for that.
+
+*Why*: AI and humans can read it in one glance. No hunting through `routes/web.php`, `config/services.php`, `app/Providers/AppServiceProvider.php`.
+
+*Example*:
+
+*Regular Laravel/Symfony style:*
+// routes/web.php
+Route::get('/user/{id}', [UserController::class, 'show']);
+
+// UserController.php
+public function show($id) {
+    $request->validate(['id' => 'required|integer']);
+    $user = User::find($id);
+    return view('user', ['user' => $user]);
+}
+You have to open 2 files to understand what happens. AI gets confused easily.
+
+*Helix-Forge attribute-driven style:*
+#[Route('/user/{id}', method: 'GET')]
+#[Validate(['id' => 'required|integer'])]
+#[Response('user.view')]
+class UserController
+{
+    public function show(#[Param] int $id, UserRepository $users)
+    {
+        return $users->find($id);
+    }
+}
+Everything is right there.  
+`#[Route]` = this is a route.  
+`#[Validate]` = validation rules.  
+`#[Param]` = this int comes from the URL.  
+`#[Response]` = render this view.
+
+AI can read this, generate it, modify it, without breaking other files. That’s “schema-first” because the attributes _are_ the schema of your app.
+
+### 2. What do I mean by “explicit”
+
+*Explicit* = you can see exactly what a line of code does without magic.
+
+*Laravel magic style:*
+Auth::user()->posts; // Where does `posts` come from? 
+`Auth` is a facade. `posts` is a dynamic property from `__get`. PHPStan, your IDE, and AI can’t easily trace it.
+
+*Helix-Forge explicit style:*
+class UserController
+{
+    public function __construct(
+        private AuthService $auth,
+        private PostRepository $posts
+    ) {}
+
+    public function index()
+    {
+        $user = $this->auth->user();
+        return $this->posts->forUser($user->id);
+    }
+}
+No facades, no `__call`, no global helpers. You see the dependencies injected. You see the methods called. 
+
+*Why it matters*: Easier to debug, easier for juniors, easier for AI. No “where did this method come from??” moments.
+
+### 3. What do I mean by DI
+
+*DI = Dependency Injection*. 
+
+It’s just a fancy way of saying “don’t create your dependencies inside the class. Get them handed to you.”
+
+*Without DI - bad:*
+class OrderController
+{
+    public function pay()
+    {
+        $payment = new StripePayment(); // Hardcoded. Hard to test, hard to swap.
+        $payment->charge();
+    }
+}
+*With DI - good:*
+class OrderController
+{
+    public function __construct(private PaymentGateway $payment) {}
+
+    public function pay()
+    {
+        $this->payment->charge(); // Could be Stripe, PayPal, Mock. You decide in config.
+    }
+}
+Helix-Forge would auto-wire this using the container. No manual `new` everywhere.  
+*Why it matters*: Your code is testable, swappable, and AI can understand the dependencies by reading the constructor.
+
+### 4. “Ship with AI” - break it down non-technical
+
+Think of Helix-Forge like a house that comes with built-in instructions for robots.
+
+Right now, Laravel/Symfony are like houses built for humans. If you send a robot in, it knocks over walls because it doesn’t understand where the plumbing is.
+
+*“Ship with AI” means:*
+1. *The house has labels*: Every room, pipe, wire is labeled with attributes. The robot knows exactly what to touch.
+2. *The house has a remote control*: Helix-Forge ships with a CLI/Agent protocol. You can tell Cursor/Claude “add user login” and it calls `helix forge add:auth` safely, instead of guessing and breaking things.
+3. *The house has a rulebook*: A `.helix/agent.yml` file says “only use Postgres, use this coding style, don’t install these packages”. The AI follows it automatically.
+4. *Pre-wired smart features*: Out of the box, Helix-Forge has packages like “AI can generate tests”, “AI can write migrations from plain English”, “AI can explain why this route is slow”.
+
+In plain terms: You can open Helix-Forge in Cursor and say “make me a blog with comments and auth”. Because of the structure, AI gets it right 90% of the time without you fixing 20 errors after.
+
+### 5. What do I mean by “strict BC”
+
+*BC = Backward Compatibility*.  
+*Strict BC* = we promise not to break your code when you upgrade.
+
+*What happens now*:  
+Laravel 10 → 11 often breaks things. You spend 2 days fixing deprecated methods. CTOs hate this.
+
+*What Helix-Forge promises:*
+1. *Semantic Versioning*: If we bump the major version 2.0 → 3.0, that’s the only time we break things. 2.1 → 2.2 will never break your app.
+2. *Codemod tool*: When we do break things, we ship a script. You run `helix upgrade` and it auto-fixes 95% of the code for you.
+3. *3-year LTS*: Long Term Support. Pick a version, get security fixes for 3 years without changing code.
+
+*Why it matters*: Companies can adopt Helix-Forge without fear of “we’ll have to rewrite everything next year”. 
+
+---
+
+If you want, I can put this into a side-by-side comparison table: “Laravel does X, Helix-Forge does Y” for your landing page. Want me to do that?

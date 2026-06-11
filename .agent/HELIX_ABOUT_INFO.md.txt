@@ -1,0 +1,80 @@
+“Just another MVC” is dead in the AI era. If Helix-Forge only ships routing + DI, it gets replaced by Cursor/Copilot in 6 months.
+
+To survive, Helix-Forge has to become *the framework that’s designed to be driven by AI*. Not bolted on later.
+
+Here’s how we reposition it:
+
+### 1. Shift the positioning
+
+*Old*: “Fast, explicit, modern PHP framework”  
+*New*: *“Helix-Forge: The AI-native PHP framework for building APIs and web apps 10x faster with agents.”*
+
+The pitch changes from “write code” to “orchestrate AI to write code in a way that doesn’t become spaghetti”.
+
+### 2. What AI-native means for Helix-Forge
+
+Laravel/Symfony were built for humans. Helix-Forge should be built for *humans + agents*:
+
+*A. Schema-first, attribute-driven*
+AI sucks at reading magic and 500-line ServiceProviders. But it’s great at reading attributes and PHP 8.3 types.  
+Make everything declarative: routes, validation, DB schema, jobs, permissions all as attributes.  
+AI can then generate, diff, and refactor the whole thing reliably.
+
+*B. Built-in “Forge” CLI + Agent Protocol*
+Ship a CLI that exposes a JSON-RPC/MCP interface. 
+- `helix forge generate:model User`
+- `helix forge add:stripe-billing`
+- `helix forge explain:route /api/users`
+- `helix forge fix:test-failure`
+
+Cursor, Claude Code, Copilot Workspace can call these directly. You’re giving AI a safe API to modify the project instead of it guessing and breaking things.
+
+*C. Explicit > Magic = AI-friendly*
+You already planned this. It’s now your biggest advantage. 
+AI can’t debug facades and `__call`. It can debug explicit classes, DI, and attributes. So Helix-Forge becomes the framework AI actually gets right 90% of the time.
+
+*D. First-class “Agent Mode” for projects*
+Add a `.helix/agent.yml` config that defines:
+- Coding standards
+- Approved packages
+- DB schema
+- Deployment targets
+
+When a dev opens the project in Cursor, the agent loads that file and knows the rules. No more “AI wrote Laravel code in a Symfony project”.
+
+*E. Ship with AI-native packages*
+- `helix/ai-rag`: Drop-in RAG for your app’s docs + codebase
+- `helix/ai-queue`: Background jobs that run LLM tasks
+- `helix/ai-testing`: Auto-generate Pest tests from routes + models
+- `helix/ai-migrate`: Turn natural language into DB migrations safely
+
+### 3. Why devs switch in the AI era
+Pain Point Now | How Helix-Forge Solves It
+AI generates messy, unmaintainable code in Laravel | Helix-Forge is explicit + attribute-driven. AI output is clean and predictable
+AI breaks upgrades, no one knows why | Codemods + strict BC + AI can read the upgrade path
+“Vibe coding” doesn’t scale past a prototype | Helix-Forge enforces structure while letting AI move fast
+Context loss in big codebases | Agent protocol + schema-first means AI always knows the project state
+### 4. The new moat
+
+In 2 years, every framework will have “AI support”. The moat is:
+
+1. *Structure AI can’t break*: Attributes + explicit DI + compiled routes
+2. *Agent protocol*: You control how AI interacts with the codebase
+3. *Speed*: Because there’s no magic, AI gets it right first try. Less back-and-forth = 10x faster
+
+Laravel is optimized for human DX. Helix-Forge is optimized for *AI + human collaboration DX*.
+
+### 5. Quick wins for AI positioning
+
+1. Release a VS Code/Cursor extension on day 1 that uses the Helix-Forge agent protocol
+2. “One prompt to full CRUD API” demo using attributes
+3. Show a side-by-side: AI trying to add a feature in Laravel vs Helix-Forge. Helix-Forge PR passes CI first try.
+4. Market it as “The framework for vibe coders who ship to prod”
+
+---
+
+*Bottom line*: 
+If you don’t reposition, Helix-Forge is irrelevant in 18 months.  
+If you do, you become the framework for the next wave of devs who don’t write code line-by-line, they orchestrate AI.
+
+Want me to rewrite the 1-pager landing page copy with this AI-native angle so you can test it with devs?

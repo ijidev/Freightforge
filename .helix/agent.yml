@@ -1,0 +1,25 @@
+project:
+  name: "Helix-Forge"
+  php_version: "8.3"
+  db: "sqlite"
+  coding_style: "psr-12"
+
+rules:
+    - "No facades. Use DI only."
+    - "All routes must use #[Route] attribute."
+    - "Repositories only. No direct DB queries in controllers."
+    - "Constructor injection only. No static facades."
+    - "Use #[Validate] attribute for validation rules."
+    - "Use #[Entity] and #[Column] for database schema."
+
+packages:
+  allowed: ["helix/*", "symfony/*", "pestphp/*"]
+  forbidden: []
+
+endpoints:
+  generate_controller: "php helix make:controller {name}"
+  generate_model: "php helix make:model {name} {fields}"
+  list_routes: "php helix route:list"
+  cache_routes: "php helix cache:routes"
+  run_tests: "vendor/bin/pest"
+  serve: "php helix serve"
