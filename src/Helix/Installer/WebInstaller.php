@@ -18,7 +18,7 @@ class WebInstaller
 
     public function runChecks(): array
     {
-        $this->installer->run(silent: true);
+        $this->installer->runSystemChecks();
         return $this->installer->getResults();
     }
 

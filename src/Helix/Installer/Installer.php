@@ -14,6 +14,16 @@ class Installer
     {
     }
 
+    public function runSystemChecks(): bool
+    {
+        $this->checkPhpVersion();
+        $this->checkExtensions();
+        $this->checkPermissions();
+
+        $failed = array_filter($this->results, fn($r) => $r['status'] === 'fail');
+        return empty($failed);
+    }
+
     public function run(bool $silent = false): bool
     {
         if (!$silent) {
