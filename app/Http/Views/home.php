@@ -13,33 +13,35 @@
 
 <div class="section" id="how-it-works">
     <div class="container">
-        <h2 class="section-title"><?= htmlspecialchars($S['how_it_works_intro']['title'] ?? 'How It Works') ?></h2>
-        <p class="section-subtitle"><?= htmlspecialchars($S['how_it_works_intro']['subtitle'] ?? 'Three simple steps to ship with confidence') ?></p>
+        <h2 class="section-title"><?= htmlspecialchars($S['how_it_works']['title'] ?? 'How It Works') ?></h2>
+        <p class="section-subtitle"><?= htmlspecialchars($S['how_it_works']['subtitle'] ?? 'Three simple steps to ship with confidence') ?></p>
         <div class="steps-row">
+            <?php
+            $steps = [];
+            if (!empty($S['how_it_works']['content'])) {
+                $steps = json_decode($S['how_it_works']['content'], true) ?: [];
+            }
+            if (empty($steps)) {
+                $steps = [
+                    ['icon' => '📋', 'title' => 'Book Your Shipment', 'desc' => 'Tell us where it\'s going and what you\'re sending. We handle the rest — from labeling to carrier coordination.'],
+                    ['icon' => '📡', 'title' => 'Track in Real Time', 'desc' => 'Follow your shipment every step of the way. Live updates, milestone alerts, and a clear timeline from pickup to delivery.'],
+                    ['icon' => '✅', 'title' => 'Delivered With Care', 'desc' => 'Get notified the moment your shipment arrives. Full delivery confirmation and proof every package reaches its destination.'],
+                ];
+            }
+            foreach ($steps as $index => $step):
+            ?>
             <div class="step-card">
-                <div class="step-number">1</div>
-                <div class="step-icon">📋</div>
-                <h3>Book Your Shipment</h3>
-                <p>Tell us where it's going and what you're sending. We handle the rest — from labeling to carrier coordination.</p>
+                <div class="step-number"><?= $index + 1 ?></div>
+                <div class="step-icon"><?= htmlspecialchars($step['icon'] ?? '') ?></div>
+                <h3><?= htmlspecialchars($step['title'] ?? '') ?></h3>
+                <p><?= htmlspecialchars($step['desc'] ?? '') ?></p>
             </div>
+            <?php if ($index < count($steps) - 1): ?>
             <div class="step-connector">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             </div>
-            <div class="step-card">
-                <div class="step-number">2</div>
-                <div class="step-icon">📡</div>
-                <h3>Track in Real Time</h3>
-                <p>Follow your shipment every step of the way. Live updates, milestone alerts, and a clear timeline from pickup to delivery.</p>
-            </div>
-            <div class="step-connector">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            </div>
-            <div class="step-card">
-                <div class="step-number">3</div>
-                <div class="step-icon">✅</div>
-                <h3>Delivered With Care</h3>
-                <p>Get notified the moment your shipment arrives. Full delivery confirmation and proof every package reaches its destination.</p>
-            </div>
+            <?php endif; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 </div>
@@ -75,44 +77,37 @@
         <h2 class="section-title">Why Choose Us</h2>
         <p class="section-subtitle">Built for people who send and receive shipments every day</p>
         <div class="features-grid">
+            <?php
+            $features = [];
+            if (!empty($S['features']['content'])) {
+                $features = json_decode($S['features']['content'], true) ?: [];
+            }
+            if (empty($features)) {
+                $features = [
+                    ['icon' => '📍', 'title' => 'Live Tracking, Always', 'desc' => 'See exactly where your shipment is at any moment. No more guessing or waiting for phone calls — just real-time visibility.'],
+                    ['icon' => '🔔', 'title' => 'Instant Alerts', 'desc' => 'Automatic email updates at every milestone. From pickup to delivery, you and your recipient stay informed without lifting a finger.'],
+                    ['icon' => '🌍', 'title' => 'Ship Anywhere', 'desc' => 'Domestic or international, small box or full container — we coordinate with top carriers to get your cargo where it needs to go.'],
+                    ['icon' => '🛡️', 'title' => 'Peace of Mind', 'desc' => 'Every shipment is handled with care. Clear tracking history, delivery confirmation, and dedicated support if you ever need us.'],
+                    ['icon' => '📱', 'title' => 'Easy to Use', 'desc' => 'Simple tracking by number, no account needed. When you do create shipments, a clean interface makes it effortless.'],
+                    ['icon' => '⚡', 'title' => 'Fast & Efficient', 'desc' => 'From booking to delivery, we streamline every step. Less waiting, more moving — because your time matters.'],
+                ];
+            }
+            foreach ($features as $feature):
+            ?>
             <div class="feature-card">
-                <div class="feature-icon">📍</div>
-                <h3>Live Tracking, Always</h3>
-                <p>See exactly where your shipment is at any moment. No more guessing or waiting for phone calls — just real-time visibility.</p>
+                <div class="feature-icon"><?= htmlspecialchars($feature['icon'] ?? '') ?></div>
+                <h3><?= htmlspecialchars($feature['title'] ?? '') ?></h3>
+                <p><?= htmlspecialchars($feature['desc'] ?? '') ?></p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔔</div>
-                <h3>Instant Alerts</h3>
-                <p>Automatic email updates at every milestone. From pickup to delivery, you and your recipient stay informed without lifting a finger.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🌍</div>
-                <h3>Ship Anywhere</h3>
-                <p>Domestic or international, small box or full container — we coordinate with top carriers to get your cargo where it needs to go.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🛡️</div>
-                <h3>Peace of Mind</h3>
-                <p>Every shipment is handled with care. Clear tracking history, delivery confirmation, and dedicated support if you ever need us.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📱</div>
-                <h3>Easy to Use</h3>
-                <p>Simple tracking by number, no account needed. When you do create shipments, a clean interface makes it effortless.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>Fast & Efficient</h3>
-                <p>From booking to delivery, we streamline every step. Less waiting, more moving — because your time matters.</p>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </div>
 
 <div class="section section-alt">
     <div class="container" style="text-align:center;">
-        <h2 class="section-title">Track a Shipment</h2>
-        <p class="section-subtitle">Have a tracking number? Check your shipment status in seconds.</p>
+        <h2 class="section-title"><?= htmlspecialchars($S['track_cta']['title'] ?? 'Track a Shipment') ?></h2>
+        <p class="section-subtitle"><?= htmlspecialchars($S['track_cta']['subtitle'] ?? 'Have a tracking number? Check your shipment status in seconds.') ?></p>
         <div class="track-card">
             <form action="/track" method="GET" class="track-form">
                 <input type="text" name="number" placeholder="e.g., FF-1712345678-ABCD" required>
@@ -124,8 +119,8 @@
 
 <div class="section section-cta">
     <div class="container" style="text-align:center;">
-        <h2 class="section-title" style="color:#fff;">Ready to Get Started?</h2>
-        <p class="section-subtitle" style="color:#fdba74;">Join thousands of satisfied customers — reliable shipping starts here.</p>
+        <h2 class="section-title" style="color:#fff;"><?= htmlspecialchars($S['final_cta']['title'] ?? 'Ready to Get Started?') ?></h2>
+        <p class="section-subtitle" style="color:#fdba74;"><?= htmlspecialchars($S['final_cta']['subtitle'] ?? 'Join thousands of satisfied customers — reliable shipping starts here.') ?></p>
         <div class="hero-actions" style="margin-top:1.5rem;">
             <a href="/about" class="btn btn-primary btn-lg">Learn More</a>
             <a href="/track" class="btn btn-outline btn-lg" style="border-color:#fdba74;color:#fff;">Track Now</a>

@@ -498,6 +498,55 @@ class Installer
                 $stmt->execute([$key, $value]);
             }
 
+            // Seed sections
+            $defaultSections = [
+                // Home Page
+                ['page' => 'home', 'section_key' => 'hero', 'title' => 'Your Shipments, Always in Sight', 'subtitle' => 'Send packages anywhere with confidence. Real-time tracking, instant updates, and delivery notifications — so you never have to wonder where your cargo is.'],
+                ['page' => 'home', 'section_key' => 'how_it_works', 'title' => 'How It Works', 'subtitle' => 'Three simple steps to ship with confidence', 'content' => json_encode([
+                    ['icon' => '📋', 'title' => 'Book Your Shipment', 'desc' => 'Tell us where it\'s going and what you\'re sending. We handle the rest — from labeling to carrier coordination.'],
+                    ['icon' => '📡', 'title' => 'Track in Real Time', 'desc' => 'Follow your shipment every step of the way. Live updates, milestone alerts, and a clear timeline from pickup to delivery.'],
+                    ['icon' => '✅', 'title' => 'Delivered With Care', 'desc' => 'Get notified the moment your shipment arrives. Full delivery confirmation and proof every package reaches its destination.'],
+                ])],
+                ['page' => 'home', 'section_key' => 'features', 'title' => 'Why Choose Us', 'subtitle' => 'Built for people who send and receive shipments every day', 'content' => json_encode([
+                    ['icon' => '📍', 'title' => 'Live Tracking, Always', 'desc' => 'See exactly where your shipment is at any moment. No more guessing or waiting for phone calls — just real-time visibility.'],
+                    ['icon' => '🔔', 'title' => 'Instant Alerts', 'desc' => 'Automatic email updates at every milestone. From pickup to delivery, you and your recipient stay informed without lifting a finger.'],
+                    ['icon' => '🌍', 'title' => 'Ship Anywhere', 'desc' => 'Domestic or international, small box or full container — we coordinate with top carriers to get your cargo where it needs to go.'],
+                    ['icon' => '🛡️', 'title' => 'Peace of Mind', 'desc' => 'Every shipment is handled with care. Clear tracking history, delivery confirmation, and dedicated support if you ever need us.'],
+                    ['icon' => '📱', 'title' => 'Easy to Use', 'desc' => 'Simple tracking by number, no account needed. When you do create shipments, a clean interface makes it effortless.'],
+                    ['icon' => '⚡', 'title' => 'Fast & Efficient', 'desc' => 'From booking to delivery, we streamline every step. Less waiting, more moving — because your time matters.'],
+                ])],
+                ['page' => 'home', 'section_key' => 'stats', 'title' => 'Reliable Shipping, Worldwide', 'subtitle' => 'From small parcels to full freight loads — we connect you with trusted carriers across road, sea, and air networks.', 'content' => '500+,Routes Covered,99.2%,On-Time Delivery,50K+,Shipments Delivered'],
+                ['page' => 'home', 'section_key' => 'track_cta', 'title' => 'Track a Shipment', 'subtitle' => 'Have a tracking number? Check your shipment status in seconds.'],
+                ['page' => 'home', 'section_key' => 'final_cta', 'title' => 'Ready to Get Started?', 'subtitle' => 'Join thousands of satisfied customers — reliable shipping starts here.'],
+                
+                // About Page
+                ['page' => 'about', 'section_key' => 'hero', 'title' => 'Shipping Made Simple', 'subtitle' => 'We connect people with the shipments that matter — across town or across the ocean.'],
+                ['page' => 'about', 'section_key' => 'story', 'title' => 'Our Promise', 'content' => "Every day, thousands of packages move between businesses, families, and communities. We believe every shipment should be trackable, predictable, and worry-free.\n\nWhether you're sending a single parcel or managing frequent freight, our platform gives you the visibility you need — without the complexity."],
+                ['page' => 'about', 'section_key' => 'offerings', 'title' => 'What We Offer', 'subtitle' => 'Clear, reliable features that make shipping easier', 'content' => json_encode([
+                    ['icon' => '📦', 'title' => 'Package Tracking', 'desc' => 'Real-time tracking with detailed timeline. Know where your shipment is and when it will arrive.'],
+                    ['icon' => '🚚', 'title' => 'Multiple Carriers', 'desc' => 'We work with trusted carriers across road, air, and sea to get your cargo where it needs to go.'],
+                    ['icon' => '📬', 'title' => 'Email Notifications', 'desc' => 'Automatic updates sent to you and your recipient. No manual check-ins required.'],
+                    ['icon' => '🔄', 'title' => 'Easy Returns', 'desc' => 'Simple reverse logistics for when shipments need to come back. Same tracking, same peace of mind.'],
+                ])],
+                ['page' => 'about', 'section_key' => 'trust', 'title' => 'Trusted by Businesses Big and Small', 'subtitle' => 'From local shops to global enterprises, companies rely on us to keep their shipments moving and their customers informed.', 'content' => '50K+,Shipments Delivered,500+,Cities Covered,98%,Satisfaction Rate'],
+                ['page' => 'about', 'section_key' => 'cta', 'title' => 'Have a Question?', 'subtitle' => 'We\'re here to help with your shipments, tracking, or anything you need.'],
+            ];
+
+            foreach ($defaultSections as $section) {
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM sections WHERE page = ? AND section_key = ?");
+                $stmt->execute([$section['page'], $section['section_key']]);
+                if ($stmt->fetchColumn() == 0) {
+                    $stmt = $pdo->prepare("INSERT INTO sections (page, section_key, title, subtitle, content) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $section['page'],
+                        $section['section_key'],
+                        $section['title'] ?? null,
+                        $section['subtitle'] ?? null,
+                        $section['content'] ?? null
+                    ]);
+                }
+            }
+
             $this->addResult('Database Seeding', 'pass', 'Initial data seeded');
         } catch (\Throwable $e) {
             $this->addResult('Database Seeding', 'fail', "Seeding failed: {$e->getMessage()}");
