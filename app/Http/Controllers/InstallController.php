@@ -178,9 +178,9 @@ class InstallController
             border-color: #818cf8;
         }
         .form-row { display: flex; gap: 1rem; }
-        .form-row .form-group { flex: 1; }
-
+        @media (max-width: 640px) { .form-row { flex-direction: column; gap: 0; } }
         .btn {
+
             display: inline-block;
             padding: 0.65rem 1.5rem;
             border: none;

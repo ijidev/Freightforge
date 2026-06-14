@@ -105,6 +105,7 @@ class Kernel
             . '*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}'
             . 'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;display:flex;align-items:center;justify-content:center}'
             . '.card{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;padding:3rem;max-width:520px;width:90%;text-align:center}'
+            . ' @media (max-width: 480px) { .card { padding: 1.5rem; } .code { font-size: 3rem; } }'
             . '.code{font-size:4rem;font-weight:800;color:#f97316;line-height:1;margin-bottom:0.5rem}'
             . 'h1{font-size:1.5rem;font-weight:700;margin-bottom:0.75rem}'
             . 'p{color:#64748b;margin-bottom:1.5rem;line-height:1.6}'
