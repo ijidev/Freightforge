@@ -171,9 +171,12 @@ class Application
                     ['', ''],
                     $fullPath
                 );
+                $relativePath = str_replace(['/', '\\'], '\\', $relativePath);
+
                 if (class_exists($relativePath)) {
                     $router->registerController($relativePath);
                 }
+
             }
         }
     }
