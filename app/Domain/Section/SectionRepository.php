@@ -31,11 +31,11 @@ class SectionRepository extends Repository
         $data['section_key'] = $sectionKey;
 
         if ($existing) {
-            $data['updated_at'] = date('c');
+            $data['updated_at'] = date('Y-m-d H:i:s');
             $this->update($existing['id'], $data);
         } else {
-            $data['created_at'] = date('c');
-            $data['updated_at'] = date('c');
+            $data['created_at'] = date('Y-m-d H:i:s');
+            $data['updated_at'] = date('Y-m-d H:i:s');
             $this->create($data);
         }
     }
