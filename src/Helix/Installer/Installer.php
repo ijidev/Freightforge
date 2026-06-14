@@ -83,7 +83,7 @@ class Installer
         ];
     }
 
-    private function checkPhpVersion(): void
+    public function checkPhpVersion(): void
     {
         $version = PHP_VERSION;
         $ok = version_compare($version, self::MIN_PHP_MAJOR . '.' . self::MIN_PHP_MINOR, '>=');
@@ -97,7 +97,7 @@ class Installer
         );
     }
 
-    private function checkExtensions(): void
+    public function checkExtensions(): void
     {
         $required = ['pdo', 'pdo_sqlite', 'mbstring', 'ctype', 'json', 'fileinfo'];
         foreach ($required as $ext) {
@@ -110,7 +110,7 @@ class Installer
         }
     }
 
-    private function checkPermissions(): void
+    public function checkPermissions(): void
     {
         $dirs = [
             $this->projectDir . '/storage',
@@ -182,7 +182,7 @@ class Installer
         $this->addResult('.env file', 'pass', 'Created from .env.example');
     }
 
-    private function setupDatabase(): void
+    public function setupDatabase(): void
     {
         $driver = $this->config['DB_DRIVER'] ?? 'mysql';
 
@@ -211,7 +211,7 @@ class Installer
         }
     }
 
-    private function setupDirectories(): void
+    public function setupDirectories(): void
     {
         $dirs = [
             $this->projectDir . '/storage/logs',
