@@ -28,34 +28,24 @@ class WebInstaller
         $adminEmail = $config['ADMIN_EMAIL'] ?? '';
         $adminPassword = $config['ADMIN_PASSWORD'] ?? '';
 
-        $dbDriver = $config['DB_DRIVER'] ?? 'mysql';
-        $envVars = [
-            'APP_ENV' => 'development',
-            'APP_DEBUG' => 'true',
-            'APP_URL' => $config['APP_URL'] ?? 'http://localhost:8080',
-            'DB_DRIVER' => $dbDriver,
-        ];
+        // Load defaults from .env.example
+        $envExample = $this->installer->getProjectDir() . '/.env.example';
+        $defaults = file_exists($envExample) ? (parse_ini_file($envExample) ?: []) : [];
 
-        if ($dbDriver === 'sqlite') {
-            $envVars['DB_PATH'] = $config['DB_PATH'] ?? 'storage/database.sqlite';
-        } else {
-            $envVars['DB_HOST'] = $config['DB_HOST'] ?? '127.0.0.1';
-            $envVars['DB_PORT'] = $config['DB_PORT'] ?? ($dbDriver === 'mysql' ? '3306' : '5432');
-            $envVars['DB_NAME'] = $config['DB_NAME'] ?? 'freightforge';
-            $envVars['DB_USER'] = $config['DB_USER'] ?? 'root';
-            $envVars['DB_PASS'] = $config['DB_PASS'] ?? '';
-        }
+        // Merge defaults with provided config
+        $fullConfig = array_merge($defaults, $config);
 
-        $content = '';
-        foreach ($envVars as $key => $value) {
-            $content .= "{$key}={$value}\n";
-        }
-        file_put_contents($this->installer->getProjectDir() . '/.env', $content);
+        // Set the config in the installer
+        $this->installer->setConfig($fullConfig);
 
         try {
-            $ok = $this->installer->run(silent: true);
+            // Perform checks and setup without creating .env yet
+            $this->installer->checkPhpVersion();
+            $this->installer->checkExtensions();
+            $this->installer->checkPermissions();
+            $this->installer->setupDatabase();
+            $this->installer->setupDirectories();
         } catch (\Throwable $e) {
-            @unlink($this->installer->getProjectDir() . '/.env');
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -63,8 +53,8 @@ class WebInstaller
             ];
         }
 
-        if (!$ok) {
-            @unlink($this->installer->getProjectDir() . '/.env');
+        $failed = array_filter($this->installer->getResults(), fn($r) => $r['status'] === 'fail');
+        if (!empty($failed)) {
             return [
                 'success' => false,
                 'error' => 'Some checks failed. Check the results for details.',
@@ -73,7 +63,6 @@ class WebInstaller
         }
 
         if (!$this->installer->setupSchema()) {
-            @unlink($this->installer->getProjectDir() . '/.env');
             return [
                 'success' => false,
                 'error' => 'Failed to create database tables.',
@@ -82,13 +71,42 @@ class WebInstaller
         }
 
         if (!$this->installer->setupAdmin($adminName, $adminEmail, $adminPassword)) {
-            @unlink($this->installer->getProjectDir() . '/.env');
             return [
                 'success' => false,
                 'error' => 'Failed to create admin account.',
                 'results' => $this->installer->getResults(),
             ];
         }
+
+        // Post-installation steps
+        $this->installer->seedDatabase();
+        $this->installer->createSqlDump();
+        $this->installer->checkTables(['users', 'settings', 'sections', 'shipments', 'statuses', 'shipment_statuses']);
+
+        // Installation successful! Now create the .env file.
+        $dbDriver = $fullConfig['DB_DRIVER'] ?? 'mysql';
+        $envVars = [
+            'APP_ENV' => $fullConfig['APP_ENV'] ?? 'development',
+            'APP_DEBUG' => $fullConfig['APP_DEBUG'] ?? 'true',
+            'APP_URL' => $fullConfig['APP_URL'] ?? 'http://localhost:8080',
+            'DB_DRIVER' => $dbDriver,
+        ];
+
+        if ($dbDriver === 'sqlite') {
+            $envVars['DB_PATH'] = $fullConfig['DB_PATH'] ?? 'storage/database.sqlite';
+        } else {
+            $envVars['DB_HOST'] = $fullConfig['DB_HOST'] ?? '127.0.0.1';
+            $envVars['DB_PORT'] = $fullConfig['DB_PORT'] ?? ($dbDriver === 'mysql' ? '3306' : '5432');
+            $envVars['DB_NAME'] = $fullConfig['DB_NAME'] ?? 'freightforge';
+            $envVars['DB_USER'] = $fullConfig['DB_USER'] ?? 'root';
+            $envVars['DB_PASS'] = $fullConfig['DB_PASS'] ?? '';
+        }
+
+        $content = '';
+        foreach ($envVars as $key => $value) {
+            $content .= "{$key}={$value}\n";
+        }
+        file_put_contents($this->installer->getProjectDir() . '/.env', $content);
 
         return [
             'success' => true,

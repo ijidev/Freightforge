@@ -55,6 +55,11 @@ class Installer
         return $this->config;
     }
 
+    public function setConfig(array $config): void
+    {
+        $this->config = $config;
+    }
+
     public function getProjectDir(): string
     {
         return $this->projectDir;
@@ -135,6 +140,11 @@ class Installer
         if (file_exists($envFile)) {
             $this->config = parse_ini_file($envFile) ?: [];
             $this->addResult('.env file', 'pass', 'Already exists, using existing config');
+            return;
+        }
+
+        if (!empty($this->config)) {
+            $this->addResult('.env file', 'pass', 'Using provided configuration');
             return;
         }
 
@@ -449,6 +459,157 @@ class Installer
         } catch (\Throwable $e) {
             $this->addResult('Admin User', 'fail', "Could not create admin: {$e->getMessage()}");
             return false;
+        }
+    }
+
+    public function seedDatabase(): void
+    {
+        try {
+            $driver = $this->config['DB_DRIVER'] ?? 'mysql';
+            $dbUser = $this->config['DB_USER'] ?? '';
+            $dbPass = $this->config['DB_PASS'] ?? '';
+
+            if ($driver === 'sqlite') {
+                $path = $this->projectDir . '/' . ($this->config['DB_PATH'] ?? 'storage/database.sqlite');
+                $dsn = "sqlite:{$path}";
+            } else {
+                $host = $this->config['DB_HOST'] ?? '127.0.0.1';
+                $dbname = $this->config['DB_NAME'] ?? 'freightforge';
+                $dsn = "{$driver}:host={$host};dbname={$dbname}";
+            }
+
+            $pdo = new \PDO($dsn, $dbUser, $dbPass, [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            ]);
+
+            // Seed settings
+            $defaultSettings = [
+                'site_name' => 'FreightForge',
+                'contact_email' => 'support@freightforge.com',
+            ];
+
+            if ($driver === 'sqlite') {
+                $stmt = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)");
+            }
+
+            foreach ($defaultSettings as $key => $value) {
+                $stmt->execute([$key, $value]);
+            }
+
+            $this->addResult('Database Seeding', 'pass', 'Initial data seeded');
+        } catch (\Throwable $e) {
+            $this->addResult('Database Seeding', 'fail', "Seeding failed: {$e->getMessage()}");
+        }
+    }
+
+    public function createSqlDump(): void
+    {
+        try {
+            $driver = $this->config['DB_DRIVER'] ?? 'mysql';
+            $dumpDir = $this->projectDir . '/storage/dumps';
+            if (!is_dir($dumpDir)) {
+                mkdir($dumpDir, 0775, true);
+            }
+
+            $timestamp = date('Ymd_His');
+            $dumpFile = $dumpDir . '/db_dump_' . $timestamp . '.sql';
+
+            if ($driver === 'sqlite') {
+                $path = $this->config['DB_PATH'] ?? 'storage/database.sqlite';
+                $fullPath = $this->projectDir . '/' . $path;
+                
+                if (!file_exists($fullPath)) {
+                    throw new \Exception("SQLite database file not found at {$fullPath}");
+                }
+
+                $command = "sqlite3 " . escapeshellarg($fullPath) . " .dump > " . escapeshellarg($dumpFile);
+                exec($command, $output, $returnCode);
+                
+                if ($returnCode !== 0) {
+                    throw new \Exception("Failed to create SQLite dump. Ensure sqlite3 CLI is installed.");
+                }
+            } else {
+                $sourceFile = $this->projectDir . '/storage/DB/freightforge.sql';
+                
+                if (file_exists($sourceFile)) {
+                    if (copy($sourceFile, $dumpFile)) {
+                        $this->addResult('SQL Dump', 'pass', "Created dump from template at {$dumpFile}");
+                    } else {
+                        throw new \Exception("Failed to copy template SQL dump.");
+                    }
+                } else {
+                    $host = $this->config['DB_HOST'] ?? '127.0.0.1';
+                    $dbname = $this->config['DB_NAME'] ?? 'freightforge';
+                    $user = $this->config['DB_USER'] ?? 'root';
+                    $pass = $this->config['DB_PASS'] ?? '';
+
+                    // Using mysqldump
+                    $command = sprintf(
+                        'mysqldump -h %s -u %s %s%s > %s',
+                        escapeshellarg($host),
+                        escapeshellarg($user),
+                        ($pass !== '' ? "-p" . escapeshellarg($pass) . " " : ""),
+                        escapeshellarg($dbname),
+                        escapeshellarg($dumpFile)
+                    );
+                    
+                    exec($command, $output, $returnCode);
+
+                    if ($returnCode !== 0) {
+                        throw new \Exception("Failed to create MySQL dump. Ensure mysqldump is installed and accessible.");
+                    }
+                    $this->addResult('SQL Dump', 'pass', "Created dump via mysqldump at {$dumpFile}");
+                }
+            }
+
+            $this->addResult('SQL Dump', 'pass', "Created dump at {$dumpFile}");
+        } catch (\Throwable $e) {
+            $this->addResult('SQL Dump', 'fail', "Dump failed: {$e->getMessage()}");
+        }
+    }
+
+    public function checkTables(array $expectedTables): void
+    {
+        try {
+            $driver = $this->config['DB_DRIVER'] ?? 'mysql';
+            $dbUser = $this->config['DB_USER'] ?? '';
+            $dbPass = $this->config['DB_PASS'] ?? '';
+
+            if ($driver === 'sqlite') {
+                $path = $this->projectDir . '/' . ($this->config['DB_PATH'] ?? 'storage/database.sqlite');
+                $dsn = "sqlite:{$path}";
+            } else {
+                $host = $this->config['DB_HOST'] ?? '127.0.0.1';
+                $dbname = $this->config['DB_NAME'] ?? 'freightforge';
+                $dsn = "{$driver}:host={$host};dbname={$dbname}";
+            }
+
+            $pdo = new \PDO($dsn, $dbUser, $dbPass, [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            ]);
+
+            $missingTables = [];
+            foreach ($expectedTables as $table) {
+                if ($driver === 'sqlite') {
+                    $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='" . $table . "'");
+                } else {
+                    $stmt = $pdo->query("SHOW TABLES LIKE " . $pdo->quote($table));
+                }
+
+                if (!$stmt->fetch()) {
+                    $missingTables[] = $table;
+                }
+            }
+
+            if (empty($missingTables)) {
+                $this->addResult('Table Check', 'pass', 'All expected tables exist');
+            } else {
+                $this->addResult('Table Check', 'fail', 'Missing tables: ' . implode(', ', $missingTables));
+            }
+        } catch (\Throwable $e) {
+            $this->addResult('Table Check', 'fail', "Check failed: {$e->getMessage()}");
         }
     }
 
