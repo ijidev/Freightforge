@@ -8,6 +8,7 @@ use App\Domain\Shipment\ShipmentRepository;
 use App\Domain\User\UserRepository;
 use Helix\Http\Request;
 use Helix\Http\Response;
+use Helix\Installer\Installer;
 use Helix\Routing\Attributes\Route;
 use Helix\View\Template;
 
@@ -376,6 +377,48 @@ class AdminController
         }
 
         return Response::redirect('/admin/sections');
+    }
+
+    #[Route('/admin/seed-database', method: 'POST')]
+    public function seedDatabase(): Response
+    {
+        $redirect = $this->requireAuth();
+        if ($redirect) return $redirect;
+
+        try {
+            $installer = new Installer(__DIR__ . '/../../../');
+
+            $config = [
+                'DB_DRIVER' => $_ENV['DB_DRIVER'] ?? 'mysql',
+                'DB_HOST' => $_ENV['DB_HOST'] ?? 'localhost',
+                'DB_NAME' => $_ENV['DB_NAME'] ?? 'freightforge',
+                'DB_USER' => $_ENV['DB_USER'] ?? 'root',
+                'DB_PASS' => $_ENV['DB_PASS'] ?? '',
+            ];
+
+            if ($config['DB_DRIVER'] === 'sqlite') {
+                $config['DB_PATH'] = $_ENV['DB_PATH'] ?? 'storage/database.sqlite';
+            }
+
+            $installer->setConfig($config);
+
+            $installer->setupSchema();
+            $installer->seedDatabase();
+
+            $results = $installer->getResults();
+            $errors = array_filter($results, fn($r) => $r['status'] === 'fail');
+
+            if (empty($errors)) {
+                $this->setFlash('success', 'Database seeded successfully. Missing tables and data have been created.');
+            } else {
+                $messages = array_map(fn($r) => $r['message'], $errors);
+                $this->setFlash('error', 'Seeding completed with errors: ' . implode('; ', $messages));
+            }
+        } catch (\Throwable $e) {
+            $this->setFlash('error', 'Database seeding failed: ' . $e->getMessage());
+        }
+
+        return Response::redirect('/admin/settings');
     }
 
     private function setFlash(string $type, string $message): void

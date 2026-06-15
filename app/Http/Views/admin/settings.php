@@ -109,4 +109,13 @@
         </div>
     </form>
 </div>
+<div class="card" style="margin-top:1.5rem;">
+    <div class="card-header">Database Tools</div>
+    <div style="padding:1.5rem;">
+        <p style="margin-bottom:1rem;color:#64748b;">Seed missing tables and initial data without reinstalling. This will add any missing tables and default content (sections, settings, statuses).</p>
+        <form method="POST" action="/admin/seed-database" onsubmit="return confirm('Are you sure you want to seed the database? This will add missing tables and default data.');">
+            <button type="submit" class="btn btn-primary" style="background:#059669;">Run Database Seed</button>
+        </form>
+    </div>
+</div>
 <?php $content = ob_get_clean(); require __DIR__ . '/../layouts/admin.php'; ?>
