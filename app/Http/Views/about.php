@@ -1,4 +1,4 @@
-<?php $thisPage = 'about'; ob_start(); ?>
+<?php $thisPage = 'about'; $S = $sectionMap ?? []; ob_start(); ?>
 <div class="hero hero-about">
     <div class="hero-overlay"></div>
     <div class="container">

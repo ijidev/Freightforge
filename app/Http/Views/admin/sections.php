@@ -15,8 +15,8 @@
                 <thead>
                     <tr>
                         <th>Section Key</th>
+                        <th>Layout</th>
                         <th>Title</th>
-                        <th>Subtitle</th>
                         <th>Image</th>
                         <th>Actions</th>
                     </tr>
@@ -25,8 +25,8 @@
                     <?php foreach ($sections as $section): ?>
                     <tr>
                         <td><code style="background:#f1f5f9;padding:0.15rem 0.5rem;border-radius:0.25rem;font-size:0.85rem;"><?= htmlspecialchars($section['section_key']) ?></code></td>
+                        <td><span class="layout-badge layout-<?= htmlspecialchars($section['layout'] ?? 'default') ?>"><?= htmlspecialchars($section['layout'] ?? 'default') ?></span></td>
                         <td><?= htmlspecialchars($section['title'] ?? '—') ?></td>
-                        <td style="font-size:0.85rem;color:#64748b;"><?= htmlspecialchars($section['subtitle'] ?? '—') ?></td>
                         <td><?= !empty($section['image_path']) ? '✓' : '—' ?></td>
                         <td>
                             <a href="/admin/sections/<?= htmlspecialchars($section['page']) ?>/<?= htmlspecialchars($section['section_key']) ?>" class="btn btn-ghost btn-sm">Edit</a>

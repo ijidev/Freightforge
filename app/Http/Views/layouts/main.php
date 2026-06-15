@@ -243,6 +243,70 @@
         .about-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
         .about-card p { color: #64748b; font-size: 0.85rem; line-height: 1.6; }
 
+        .section-partners {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 3.5rem 0;
+        }
+        .partners-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .partner-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.25rem 2rem;
+            min-width: 140px;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .partner-card:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+        .partner-card img {
+            max-height: 45px;
+            opacity: 0.55;
+            transition: all 0.3s;
+            filter: grayscale(1);
+        }
+        .partner-card:hover img {
+            opacity: 1;
+            filter: grayscale(0);
+        }
+        .partner-initial {
+            width: 56px;
+            height: 56px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            border: 2px solid;
+            transition: all 0.2s;
+        }
+        .partner-card:hover .partner-initial {
+            transform: scale(1.05);
+        }
+        .partner-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.02em;
+        }
+        .partner-card:hover .partner-name {
+            color: #475569;
+        }
+
         .track-card-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
         .result-card { margin-top: 2rem; }
         .tracking-number-display {
@@ -403,6 +467,24 @@
         .tracking-content p { font-size: 0.85rem; color: #64748b; }
         .tracking-step.active .tracking-content h4 { color: #f97316; }
         .tracking-step.completed .tracking-content h4 { color: #10b981; }
+
+        .layout-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .layout-hero { background: #e0e7ff; color: #3730a3; }
+        .layout-features { background: #dbeafe; color: #1e40af; }
+        .layout-steps { background: #fce7f3; color: #9d174d; }
+        .layout-stats { background: #d1fae5; color: #065f46; }
+        .layout-partners { background: #fff7ed; color: #c2410c; }
+        .layout-cta { background: #f3e8ff; color: #6d28d9; }
+        .layout-content { background: #f1f5f9; color: #475569; }
+        .layout-default { background: #f1f5f9; color: #64748b; }
 
         .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
         .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }

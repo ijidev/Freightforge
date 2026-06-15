@@ -26,6 +26,9 @@ class Section
     #[Column(type: 'text', nullable: true)]
     public ?string $content = null;
 
+    #[Column(type: 'string', length: 50, nullable: true)]
+    public ?string $layout = 'default';
+
     #[Column(type: 'string', length: 255, nullable: true)]
     public ?string $image_path = null;
 

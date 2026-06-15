@@ -34,6 +34,7 @@ CREATE TABLE `sections` (
   `title` varchar(255) DEFAULT NULL,
   `subtitle` varchar(255) DEFAULT NULL,
   `content` text DEFAULT NULL,
+  `layout` varchar(50) DEFAULT 'default',
   `image_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -43,18 +44,19 @@ CREATE TABLE `sections` (
 -- Dumping data for table `sections`
 --
 
-INSERT INTO `sections` (`id`, `page`, `section_key`, `title`, `subtitle`, `content`, `image_path`, `created_at`, `updated_at`) VALUES
-(1, 'home', 'hero', 'Your Shipments, Always in Sight', 'Send packages anywhere with confidence. Real-time tracking, instant updates, and delivery notifications — so you never have to wonder where your cargo is.', '', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
-(2, 'home', 'how_it_works_intro', 'How It Works', 'Three simple steps to ship with confidence', '', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
-(3, 'home', 'features_intro', 'Why Choose Us', 'Built for people who send and receive shipments every day', '', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
-(4, 'home', 'stats', 'Reliable Shipping, Worldwide', 'From small parcels to full freight loads — we connect you with trusted carriers across road, sea, and air networks.', '500+,Routes Covered,99.2%,On-Time Delivery,50K+,Shipments Delivered', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
-(5, 'home', 'track_intro', 'Track a Shipment', 'Have a tracking number? Check your shipment status in seconds.', '', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
-(6, 'home', 'cta', 'Ready to Get Started?', 'Join thousands of satisfied customers — reliable shipping starts here.', '', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
-(7, 'about', 'hero', 'Shipping Made Simple', 'We connect people with the shipments that matter — across town or across the ocean.', '', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
-(8, 'about', 'story', 'Our Promise', '', 'Every day, thousands of packages move between businesses, families, and communities. We believe every shipment should be trackable, predictable, and worry-free.\n\nWhether you\'re sending a single parcel or managing frequent freight, our platform gives you the visibility you need — without the complexity.', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
-(9, 'about', 'offerings_intro', 'What We Offer', 'Clear, reliable features that make shipping easier', '', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
-(10, 'about', 'trust', 'Trusted by Businesses Big and Small', 'From local shops to global enterprises, companies rely on us to keep their shipments moving and their customers informed.', '50K+,Shipments Delivered,500+,Cities Covered,98%,Satisfaction Rate', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
-(11, 'about', 'cta', 'Have a Question?', 'We\'re here to help with your shipments, tracking, or anything you need.', '', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52');
+INSERT INTO `sections` (`id`, `page`, `section_key`, `title`, `subtitle`, `content`, `layout`, `image_path`, `created_at`, `updated_at`) VALUES
+(1, 'home', 'hero', 'Your Shipments, Always in Sight', 'Send packages anywhere with confidence. Real-time tracking, instant updates, and delivery notifications — so you never have to wonder where your cargo is.', '', 'hero', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
+(2, 'home', 'how_it_works', 'How It Works', 'Three simple steps to ship with confidence', '[{\"icon\":\"📋\",\"title\":\"Book Your Shipment\",\"desc\":\"Tell us where it\\'s going and what you\\'re sending. We handle the rest — from labeling to carrier coordination.\"},{\"icon\":\"📡\",\"title\":\"Track in Real Time\",\"desc\":\"Follow your shipment every step of the way. Live updates, milestone alerts, and a clear timeline from pickup to delivery.\"},{\"icon\":\"✅\",\"title\":\"Delivered With Care\",\"desc\":\"Get notified the moment your shipment arrives. Full delivery confirmation and proof every package reaches its destination.\"}]', 'steps', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
+(3, 'home', 'features', 'Why Choose Us', 'Built for people who send and receive shipments every day', '[{\"icon\":\"📍\",\"title\":\"Live Tracking, Always\",\"desc\":\"See exactly where your shipment is at any moment. No more guessing or waiting for phone calls — just real-time visibility.\"},{\"icon\":\"🔔\",\"title\":\"Instant Alerts\",\"desc\":\"Automatic email updates at every milestone. From pickup to delivery, you and your recipient stay informed without lifting a finger.\"},{\"icon\":\"🌍\",\"title\":\"Ship Anywhere\",\"desc\":\"Domestic or international, small box or full container — we coordinate with top carriers to get your cargo where it needs to go.\"},{\"icon\":\"🛡️\",\"title\":\"Peace of Mind\",\"desc\":\"Every shipment is handled with care. Clear tracking history, delivery confirmation, and dedicated support if you ever need us.\"},{\"icon\":\"📱\",\"title\":\"Easy to Use\",\"desc\":\"Simple tracking by number, no account needed. When you do create shipments, a clean interface makes it effortless.\"},{\"icon\":\"⚡\",\"title\":\"Fast & Efficient\",\"desc\":\"From booking to delivery, we streamline every step. Less waiting, more moving — because your time matters.\"}]', 'features', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
+(4, 'home', 'stats', 'Reliable Shipping, Worldwide', 'From small parcels to full freight loads — we connect you with trusted carriers across road, sea, and air networks.', '500+,Routes Covered,99.2%,On-Time Delivery,50K+,Shipments Delivered', 'stats', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
+(5, 'home', 'track_cta', 'Track a Shipment', 'Have a tracking number? Check your shipment status in seconds.', '', 'cta', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
+(6, 'home', 'final_cta', 'Ready to Get Started?', 'Join thousands of satisfied customers — reliable shipping starts here.', '', 'cta', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
+(7, 'home', 'partners', 'Our Partners', 'Trusted logistics providers we work with', '[{\"name\":\"DHL\",\"logo\":\"\"},{\"name\":\"FedEx\",\"logo\":\"\"},{\"name\":\"UPS\",\"logo\":\"\"},{\"name\":\"USPS\",\"logo\":\"\"}]', 'partners', NULL, '2026-06-11 01:32:51', '2026-06-11 01:32:51'),
+(8, 'about', 'hero', 'Shipping Made Simple', 'We connect people with the shipments that matter — across town or across the ocean.', '', 'hero', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
+(9, 'about', 'story', 'Our Promise', '', 'Every day, thousands of packages move between businesses, families, and communities. We believe every shipment should be trackable, predictable, and worry-free.\n\nWhether you\'re sending a single parcel or managing frequent freight, our platform gives you the visibility you need — without the complexity.', 'content', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
+(10, 'about', 'offerings', 'What We Offer', 'Clear, reliable features that make shipping easier', '[{\"icon\":\"📦\",\"title\":\"Package Tracking\",\"desc\":\"Real-time tracking with detailed timeline. Know where your shipment is and when it will arrive.\"},{\"icon\":\"🚚\",\"title\":\"Multiple Carriers\",\"desc\":\"We work with trusted carriers across road, air, and sea to get your cargo where it needs to go.\"},{\"icon\":\"📬\",\"title\":\"Email Notifications\",\"desc\":\"Automatic updates sent to you and your recipient. No manual check-ins required.\"},{\"icon\":\"🔄\",\"title\":\"Easy Returns\",\"desc\":\"Simple reverse logistics for when shipments need to come back. Same tracking, same peace of mind.\"}]', 'features', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
+(11, 'about', 'trust', 'Trusted by Businesses Big and Small', 'From local shops to global enterprises, companies rely on us to keep their shipments moving and their customers informed.', '50K+,Shipments Delivered,500+,Cities Covered,98%,Satisfaction Rate', 'stats', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52'),
+(12, 'about', 'cta', 'Have a Question?', 'We\'re here to help with your shipments, tracking, or anything you need.', '', 'cta', NULL, '2026-06-11 01:32:52', '2026-06-11 01:32:52');
 
 -- --------------------------------------------------------
 
@@ -238,7 +240,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `settings`

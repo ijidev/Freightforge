@@ -251,6 +251,41 @@ class AdminController
         return Response::html($html);
     }
 
+    private function buildContentFromLogos(Request $request): ?string
+    {
+        $names = $request->input('logo_names', []);
+        if (empty($names)) {
+            return null;
+        }
+
+        $logos = [];
+        $existingLogos = $request->input('existing_logos', []);
+
+        foreach ($names as $i => $name) {
+            $name = trim($name);
+            if (empty($name)) continue;
+
+            $logoPath = $existingLogos[$i] ?? '';
+
+            if (!empty($_FILES['logo_images']) && isset($_FILES['logo_images']['name'][$i]) && $_FILES['logo_images']['error'][$i] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../public/uploads/partners';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                $ext = pathinfo($_FILES['logo_images']['name'][$i], PATHINFO_EXTENSION);
+                $filename = 'partner-' . preg_replace('/[^a-z0-9]/i', '', $name) . '-' . time() . '.' . $ext;
+                $dest = $uploadDir . '/' . $filename;
+                if (move_uploaded_file($_FILES['logo_images']['tmp_name'][$i], $dest)) {
+                    $logoPath = '/uploads/partners/' . $filename;
+                }
+            }
+
+            $logos[] = ['name' => $name, 'logo' => $logoPath];
+        }
+
+        return json_encode($logos);
+    }
+
     #[Route('/admin/sections/create', method: 'POST')]
     public function storeSection(Request $request): Response
     {
@@ -259,6 +294,7 @@ class AdminController
 
         $page = $request->input('page', '');
         $sectionKey = $request->input('section_key', '');
+        $layout = $request->input('layout', 'default');
 
         if (!$page || !$sectionKey) {
             $this->setFlash('error', 'Page and section key are required.');
@@ -272,10 +308,19 @@ class AdminController
             return Response::redirect('/admin/sections/create');
         }
 
+        $content = $request->input('content', '');
+        if ($layout === 'partners') {
+            $logoContent = $this->buildContentFromLogos($request);
+            if ($logoContent !== null) {
+                $content = $logoContent;
+            }
+        }
+
         $data = [
             'title' => $request->input('title', ''),
             'subtitle' => $request->input('subtitle', ''),
-            'content' => $request->input('content', ''),
+            'content' => $content,
+            'layout' => $layout,
         ];
 
         if (!empty($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -332,11 +377,21 @@ class AdminController
         if ($redirect) return $redirect;
 
         $sectionRepo = new SectionRepository();
+        $layout = $request->input('layout', 'default');
+
+        $content = $request->input('content', '');
+        if ($layout === 'partners') {
+            $logoContent = $this->buildContentFromLogos($request);
+            if ($logoContent !== null) {
+                $content = $logoContent;
+            }
+        }
 
         $data = [
             'title' => $request->input('title', ''),
             'subtitle' => $request->input('subtitle', ''),
-            'content' => $request->input('content', ''),
+            'content' => $content,
+            'layout' => $layout,
         ];
 
         if (!empty($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {

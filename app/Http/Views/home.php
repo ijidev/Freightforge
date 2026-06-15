@@ -104,20 +104,44 @@
     </div>
 </div>
 
-<?php // DHL Partner Section ?>
+<?php // Partners Section ?>
+<?php if (!empty($S['partners'])): ?>
+<?php
+$partners = [];
+if (!empty($S['partners']['content'])) {
+    $partners = json_decode($S['partners']['content'], true) ?: [];
+}
+if (empty($partners)) {
+    $partners = [
+        ['name' => 'DHL', 'logo' => ''],
+        ['name' => 'FedEx', 'logo' => ''],
+        ['name' => 'UPS', 'logo' => ''],
+        ['name' => 'USPS', 'logo' => ''],
+    ];
+}
+$partnerColors = ['#d40511','#f97316','#004b91','#003b71','#3b82f6','#059669','#7c3aed','#dc2626','#2563eb','#ca8a04'];
+?>
 <div class="section section-partners">
     <div class="container">
-        <h2 class="section-title"><?= htmlspecialchars($S['dhl_partner']['title'] ?? 'Our Trusted Partner: DHL') ?></h2>
-        <p class="section-subtitle"><?= htmlspecialchars($S['dhl_partner']['subtitle'] ?? "Leveraging DHL's global network for reliable and efficient international shipping.") ?></p>
-        <div class="partner-logo">
-            <?php if (!empty($S['dhl_partner']['image_path'])): ?>
-                <img src="<?= htmlspecialchars($S['dhl_partner']['image_path']) ?>" alt="DHL Logo">
-            <?php else: ?>
-                <div class="partner-logo-placeholder">DHL</div>
-            <?php endif; ?>
+        <h2 class="section-title"><?= htmlspecialchars($S['partners']['title'] ?? 'Our Partners') ?></h2>
+        <p class="section-subtitle"><?= htmlspecialchars($S['partners']['subtitle'] ?? 'Trusted logistics providers we work with') ?></p>
+        <div class="partners-grid">
+            <?php foreach ($partners as $i => $partner): ?>
+            <div class="partner-card">
+                <?php if (!empty($partner['logo'])): ?>
+                <img src="<?= htmlspecialchars($partner['logo']) ?>" alt="<?= htmlspecialchars($partner['name'] ?? 'Partner') ?>">
+                <?php else: ?>
+                <div class="partner-initial" style="background:<?= $partnerColors[$i % count($partnerColors)] ?>10; color:<?= $partnerColors[$i % count($partnerColors)] ?>; border-color:<?= $partnerColors[$i % count($partnerColors)] ?>30;">
+                    <?= strtoupper(substr($partner['name'] ?? 'P', 0, 2)) ?>
+                </div>
+                <div class="partner-name"><?= htmlspecialchars($partner['name'] ?? 'Partner') ?></div>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <div class="section section-alt">
     <div class="container" style="text-align:center;">
