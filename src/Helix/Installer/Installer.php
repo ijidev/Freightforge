@@ -518,6 +518,8 @@ class Installer
                 ['page' => 'home', 'section_key' => 'stats', 'title' => 'Reliable Shipping, Worldwide', 'subtitle' => 'From small parcels to full freight loads — we connect you with trusted carriers across road, sea, and air networks.', 'content' => '500+,Routes Covered,99.2%,On-Time Delivery,50K+,Shipments Delivered'],
                 ['page' => 'home', 'section_key' => 'track_cta', 'title' => 'Track a Shipment', 'subtitle' => 'Have a tracking number? Check your shipment status in seconds.'],
                 ['page' => 'home', 'section_key' => 'final_cta', 'title' => 'Ready to Get Started?', 'subtitle' => 'Join thousands of satisfied customers — reliable shipping starts here.'],
+                // New Section: DHL Partner
+                ['page' => 'home', 'section_key' => 'dhl_partner', 'title' => 'Our Trusted Partner: DHL', 'subtitle' => 'Leveraging DHL's global network for reliable and efficient international shipping.', 'image_path' => '/images/dhl-logo-placeholder.png'],
                 
                 // About Page
                 ['page' => 'about', 'section_key' => 'hero', 'title' => 'Shipping Made Simple', 'subtitle' => 'We connect people with the shipments that matter — across town or across the ocean.'],
