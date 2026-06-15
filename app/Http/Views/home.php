@@ -108,7 +108,7 @@
 <div class="section section-partners">
     <div class="container">
         <h2 class="section-title"><?= htmlspecialchars($S['dhl_partner']['title'] ?? 'Our Trusted Partner: DHL') ?></h2>
-        <p class="section-subtitle"><?= htmlspecialchars($S['dhl_partner']['subtitle'] ?? 'Leveraging DHL's global network for reliable and efficient international shipping.') ?></p>
+        <p class="section-subtitle"><?= htmlspecialchars($S['dhl_partner']['subtitle'] ?? "Leveraging DHL's global network for reliable and efficient international shipping.") ?></p>
         <div class="partner-logo">
             <?php if (!empty($S['dhl_partner']['image_path'])): ?>
                 <img src="<?= htmlspecialchars($S['dhl_partner']['image_path']) ?>" alt="DHL Logo">

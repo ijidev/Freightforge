@@ -5,17 +5,6 @@ namespace Helix\Http;
 class DebugExceptionRenderer
 {
     private const CONTEXT_LINES = 10;
-    private const PHP_KEYWORDS = [
-        '__halt_compiler', 'abstract', 'and', 'array', 'as', 'break', 'callable', 'case', 'catch',
-        'class', 'clone', 'const', 'continue', 'declare', 'default', 'die', 'do', 'echo', 'else',
-        'elseif', 'empty', 'enddeclare', 'endfor', 'endforeach', 'endif', 'endswitch', 'endwhile',
-        'eval', 'exit', 'extends', 'final', 'finally', 'fn', 'for', 'foreach', 'function', 'global',
-        'goto', 'if', 'implements', 'include', 'include_once', 'instanceof', 'insteadof',
-        'interface', 'isset', 'list', 'match', 'namespace', 'new', 'or', 'print', 'private',
-        'protected', 'public', 'readonly', 'require', 'require_once', 'return', 'static', 'switch',
-        'throw', 'trait', 'try', 'unset', 'use', 'var', 'while', 'xor', 'yield', 'true', 'false',
-        'null', 'int', 'float', 'bool', 'string', 'void', 'never', 'mixed', 'self', 'parent',
-    ];
 
     public static function render(\Throwable $e, int $status, string $message, ?Request $request = null): string
     {
@@ -23,7 +12,6 @@ class DebugExceptionRenderer
         $lineNumber = $e->getLine();
         $codeSnippet = self::getCodeSnippet($filePath, $lineNumber);
         $traceHtml = self::renderTrace($e);
-        $requestHtml = $request ? self::renderRequest($request) : '';
 
         return <<<HTML
 <!DOCTYPE html>
@@ -31,7 +19,7 @@ class DebugExceptionRenderer
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{$status} — FreightForge</title>
+<title>{$status} — Error</title>
 <style>
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
@@ -58,7 +46,6 @@ class DebugExceptionRenderer
   .code-block table tr.highlight{background:#7f1d1d}
   .code-block table tr.highlight .num{background:#7f1d1d;color:#fca5a5}
   .code-block table tr.highlight .line{background:#7f1d1d}
-  .kw{color:#818cf8}.str{color:#6ee7b7}.cm{color:#64748b}.nu{color:#fcd34d}.fn{color:#34d399}.vr{color:#fca5a5}
   .trace-section h2{font-size:0.85rem;font-weight:600;color:#cbd5e1;margin-bottom:0.75rem}
   .trace-item{padding:0.6rem 0.75rem;border:1px solid #334155;border-radius:0.375rem;margin-bottom:0.5rem;background:#1e293b;font-size:0.8rem;font-family:monospace;line-height:1.5}
   .trace-item .func{color:#818cf8}
@@ -87,7 +74,6 @@ class DebugExceptionRenderer
     </div>
   </div>
   <div class="sidebar">
-    {$requestHtml}
   </div>
 </div>
 </body>
@@ -115,68 +101,14 @@ HTML;
             $lineNum = $i + 1;
             $isHighlight = $lineNum === $line;
             $code = rtrim($lines[$i], "\r\n");
-            $highlighted = self::highlight($code);
+            $code = htmlspecialchars($code);
             $rows .= '<tr class="' . ($isHighlight ? 'highlight' : '') . '">'
                 . '<td class="num">' . $lineNum . '</td>'
-                . '<td class="line">' . $highlighted . '</td>'
+                . '<td class="line">' . ($code === '' ? '&nbsp;' : $code) . '</td>'
                 . '</tr>';
         }
 
         return '<table>' . $rows . '</table>';
-    }
-
-    private static function highlight(string $code): string
-    {
-        $code = htmlspecialchars($code);
-
-        $code = preg_replace(
-            '/(\/\/.*$|\#.*$)/m',
-            '<span class="cm">$1</span>',
-            $code
-        );
-
-        $code = preg_replace(
-            '/(&lt;\?php|\?&gt;)/',
-            '<span class="kw">$1</span>',
-            $code
-        );
-
-        $keywords = implode('|', array_map('preg_quote', self::PHP_KEYWORDS));
-        $code = preg_replace(
-            '/\b(' . $keywords . ')\b/',
-            '<span class="kw">$1</span>',
-            $code
-        );
-
-        $code = preg_replace(
-            '/\b([A-Za-z_][A-Za-z0-9_]*)\s*\(/',
-            '<span class="fn">$1</span>(',
-            $code
-        );
-
-        $code = preg_replace(
-            '/([\'"])[^\1]*?\1/',
-            '<span class="str">$0</span>',
-            $code
-        );
-
-        $code = preg_replace(
-            '/\b(\d+\.?\d*)\b/',
-            '<span class="nu">$1</span>',
-            $code
-        );
-
-        $code = preg_replace(
-            '/\$[A-Za-z_][A-Za-z0-9_]*/',
-            '<span class="vr">$0</span>',
-            $code
-        );
-
-        if (strlen($code) === 0) {
-            $code = '&nbsp;';
-        }
-
-        return $code;
     }
 
     private static function renderTrace(\Throwable $e): string
@@ -225,68 +157,6 @@ HTML;
                 . '<div class="func">' . htmlspecialchars($class . $type . $function) . $args . '</div>'
                 . '<div class="loc">' . htmlspecialchars($file) . ($line ? ' : ' . $line : '') . '</div>'
                 . '</div>';
-        }
-
-        return $html;
-    }
-
-    private static function renderRequest(Request $request): string
-    {
-        $html = '<h3>Request</h3>';
-
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
-        $html .= '<div class="kv"><span class="k">Method</span><span class="v">' . htmlspecialchars($method) . '</span></div>';
-        $html .= '<div class="kv"><span class="k">URI</span><span class="v">' . htmlspecialchars($uri) . '</span></div>';
-
-        if (!empty($_GET)) {
-            $html .= '<h3>Query</h3>';
-            foreach ($_GET as $k => $v) {
-                $html .= '<div class="kv"><span class="k">' . htmlspecialchars($k) . '</span><span class="v">' . htmlspecialchars(is_array($v) ? json_encode($v) : $v) . '</span></div>';
-            }
-        }
-
-        if (!empty($_POST)) {
-            $html .= '<h3>Body</h3>';
-            foreach ($_POST as $k => $v) {
-                if (str_contains(strtolower($k), 'password')) {
-                    $html .= '<div class="kv"><span class="k">' . htmlspecialchars($k) . '</span><span class="v">••••••••</span></div>';
-                } else {
-                    $html .= '<div class="kv"><span class="k">' . htmlspecialchars($k) . '</span><span class="v">' . htmlspecialchars(is_array($v) ? json_encode($v) : $v) . '</span></div>';
-                }
-            }
-        }
-
-        $html .= '<h3>Headers</h3>';
-        $headers = [];
-        foreach ($_SERVER as $k => $v) {
-            if (str_starts_with($k, 'HTTP_')) {
-                $name = str_replace('_', '-', strtolower(substr($k, 5)));
-                $name = ucwords($name, '-');
-                $headers[$name] = $v;
-            }
-        }
-        ksort($headers);
-        foreach ($headers as $k => $v) {
-            $html .= '<div class="kv"><span class="k">' . htmlspecialchars($k) . '</span><span class="v">' . htmlspecialchars($v) . '</span></div>';
-        }
-
-        $html .= '<h3>Server</h3>';
-        $serverKeys = ['SERVER_SOFTWARE', 'SERVER_NAME', 'SERVER_ADDR', 'SERVER_PORT', 'DOCUMENT_ROOT', 'REQUEST_SCHEME', 'REMOTE_ADDR', 'PHP_SELF'];
-        foreach ($serverKeys as $k) {
-            if (!empty($_SERVER[$k])) {
-                $html .= '<div class="kv"><span class="k">' . htmlspecialchars($k) . '</span><span class="v">' . htmlspecialchars($_SERVER[$k]) . '</span></div>';
-            }
-        }
-
-        if (!empty($_ENV)) {
-            $html .= '<h3>Env</h3>';
-            foreach ($_ENV as $k => $v) {
-                if (str_contains(strtolower($k), 'pass') || str_contains(strtolower($k), 'secret') || str_contains(strtolower($k), 'key')) {
-                    continue;
-                }
-                $html .= '<div class="kv"><span class="k">' . htmlspecialchars($k) . '</span><span class="v">' . htmlspecialchars($v) . '</span></div>';
-            }
         }
 
         return $html;
