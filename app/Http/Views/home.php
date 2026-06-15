@@ -1,5 +1,8 @@
 <?php $thisPage = 'home'; $S = $sectionMap ?? []; ob_start(); ?>
 <div class="hero hero-home">
+    <div class="hero-bg-slide"></div>
+    <div class="hero-bg-slide"></div>
+    <div class="hero-bg-slide"></div>
     <div class="hero-overlay"></div>
     <div class="container">
         <h1><?= nl2br(htmlspecialchars($S['hero']['title'] ?? "Your Shipments,\nAlways in Sight")) ?></h1>

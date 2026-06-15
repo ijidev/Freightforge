@@ -7,6 +7,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Smartsupp Live Chat -->
+    <script type="text/javascript">
+    var _smartsupp = _smartsupp || {};
+    _smartsupp.key = 'c6ec878c409146381df4e5a16bb2e69745bb656a';
+    window.smartsupp||(function(d) {
+      var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+      s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+      c.type='text/javascript';c.charset='utf-8';c.async=true;
+      c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+    })(document);
+    </script>
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -84,7 +95,35 @@
             position: relative;
             overflow: hidden;
         }
-        .hero-home { background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(15,23,42,0.85)), url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1400&q=80') center/cover no-repeat; }
+        .hero-home {
+            position: relative;
+            background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(15,23,42,0.85));
+        }
+        .hero-bg-slide {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-size: cover; background-position: center;
+            opacity: 0;
+            animation: heroFade 24s infinite;
+            z-index: 0;
+        }
+        .hero-bg-slide:nth-child(1) {
+            background-image: url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1400&q=80');
+            animation-delay: 0s;
+        }
+        .hero-bg-slide:nth-child(2) {
+            background-image: url('https://images.unsplash.com/photo-1566576912328-109e7f0b1b9e?w=1400&q=80');
+            animation-delay: 8s;
+        }
+        .hero-bg-slide:nth-child(3) {
+            background-image: url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=1400&q=80');
+            animation-delay: 16s;
+        }
+        @keyframes heroFade {
+            0%, 8% { opacity: 0; }
+            12%, 30% { opacity: 1; }
+            33%, 100% { opacity: 0; }
+        }
+        .hero-home .hero-overlay { z-index: 1; }
         .hero-about { background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(15,23,42,0.85)), url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?w=1400&q=80') center/cover no-repeat; }
         .hero-track { background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(15,23,42,0.85)), url('https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1400&q=80') center/cover no-repeat; }
         .hero-overlay {
